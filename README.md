@@ -31,7 +31,8 @@
 
 ### 在线使用
 
-直接打开 `index.html` 即可使用，或部署到 GitHub Pages。
+- **在线访问**：[https://xiaoxingdelabi1.github.io/contributor-mosaic](https://xiaoxingdelabi1.github.io/contributor-mosaic)
+- **本地使用**：直接打开 `index.html` 即可使用
 
 ### 操作步骤
 
