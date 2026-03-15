@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contributor Mosaic - 贡献者头像墙生成器</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%234f46e5'/></svg>">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="lang-switcher">
+                <button id="lang-zh" class="lang-btn active">中文</button>
+                <button id="lang-en" class="lang-btn">English</button>
+            </div>
+            <h1 class="lang-zh">Contributor Mosaic</h1>
+            <h1 class="lang-en" style="display: none;">Contributor Mosaic</h1>
+            <p class="subtitle lang-zh">贡献者头像墙生成器 - 为您的开源项目致敬</p>
+            <p class="subtitle lang-en" style="display: none;">Contributor Avatar Wall Generator - Honor your open source project</p>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <div class="input-group">
+                    <label for="repo-input" class="lang-zh">GitHub 仓库地址</label>
+                    <label for="repo-input" class="lang-en" style="display: none;">GitHub Repository</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="repo-input" placeholder="owner/repo (例如: facebook/react)" autocomplete="off">
+                        <button id="fetch-btn" class="primary-btn lang-zh">获取贡献者</button>
+                        <button id="fetch-btn" class="primary-btn lang-en" style="display: none;">Get Contributors</button>
+                    </div>
+                    <p class="hint lang-zh">输入 GitHub 仓库的 owner/repo 格式，例如: vuejs/vue</p>
+                    <p class="hint lang-en" style="display: none;">Enter GitHub repository in owner/repo format, e.g.: vuejs/vue</p>
+                </div>
+
+                <div class="token-section">
+                    <details>
+                        <summary class="lang-zh">高级选项：GitHub Token（可选，用于私有仓库或提高限额）</summary>
+                        <summary class="lang-en" style="display: none;">Advanced: GitHub Token (optional, for private repos or rate limit increase)</summary>
+                        <div class="token-input-wrapper">
+                            <input type="password" id="github-token" placeholder="ghp_xxxx...">
+                            <span class="token-hint lang-zh">用于访问私有仓库或提高 API 限额</span>
+                            <span class="token-hint lang-en" style="display: none;">For accessing private repos or increasing API rate limit</span>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="controls-section" id="controls-section">
+                <h2 class="lang-zh">样式设置</h2>
+                <h2 class="lang-en" style="display: none;">Style Settings</h2>
+                <div class="controls-grid">
+                    <div class="control-item">
+                        <label for="columns" class="lang-zh">列数</label>
+                        <label for="columns" class="lang-en" style="display: none;">Columns</label>
+                        <input type="number" id="columns" value="16" min="1" max="50">
+                    </div>
+                    <div class="control-item">
+                        <label for="avatar-size" class="lang-zh">头像尺寸 (px)</label>
+                        <label for="avatar-size" class="lang-en" style="display: none;">Avatar Size (px)</label>
+                        <input type="number" id="avatar-size" value="32" min="24" max="200">
+                    </div>
+                    <div class="control-item">
+                        <label for="spacing" class="lang-zh">间距 (px)</label>
+                        <label for="spacing" class="lang-en" style="display: none;">Spacing (px)</label>
+                        <input type="number" id="spacing" value="8" min="0" max="50">
+                    </div>
+                    <div class="control-item">
+                        <label for="border-radius" class="lang-zh">圆角 (px)</label>
+                        <label for="border-radius" class="lang-en" style="display: none;">Border Radius (px)</label>
+                        <input type="number" id="border-radius" value="8" min="0" max="100">
+                    </div>
+                    <div class="control-item">
+                        <label for="bg-color" class="lang-zh">背景颜色</label>
+                        <label for="bg-color" class="lang-en" style="display: none;">Background Color</label>
+                        <div class="color-input-wrapper">
+                            <input type="color" id="bg-color" value="#ffffff">
+                            <input type="text" id="bg-color-text" value="#ffffff" maxlength="7">
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <label for="padding" class="lang-zh">内边距 (px)</label>
+                        <label for="padding" class="lang-en" style="display: none;">Padding (px)</label>
+                        <input type="number" id="padding" value="16" min="0" max="100">
+                    </div>
+                </div>
+            </section>
+
+            <section class="preview-section">
+                <h2 class="lang-zh">预览</h2>
+                <h2 class="lang-en" style="display: none;">Preview</h2>
+                <div class="preview-container" id="preview-container">
+                    <div class="placeholder" id="placeholder">
+                        <span class="placeholder-icon">[ ]</span>
+                        <p class="lang-zh">输入仓库地址并点击"获取贡献者"开始生成</p>
+                        <p class="lang-en" style="display: none;">Enter repository and click "Get Contributors" to start</p>
+                    </div>
+                    <canvas id="mosaic-canvas" style="display: none;"></canvas>
+                    <div class="loading" id="loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <p class="lang-zh">正在加载贡献者头像...</p>
+                        <p class="lang-en" style="display: none;">Loading contributor avatars...</p>
+                    </div>
+                </div>
+                <div class="stats" id="stats" style="display: none;">
+                    <span id="contributor-count">0</span> <span class="lang-zh">位贡献者</span> <span class="lang-en" style="display: none;">contributors</span>
+                </div>
+            </section>
+
+            <section class="export-section" id="export-section" style="display: none;">
+                <h2 class="lang-zh">导出</h2>
+                <h2 class="lang-en" style="display: none;">Export</h2>
+                <div class="export-buttons">
+                    <button id="export-png" class="export-btn lang-zh">
+                        下载 PNG 图片
+                    </button>
+                    <button id="export-png" class="export-btn lang-en" style="display: none;">
+                        Download PNG
+                    </button>
+                    <button id="copy-html" class="export-btn lang-zh">
+                        复制头像墙 HTML
+                    </button>
+                    <button id="copy-html" class="export-btn lang-en" style="display: none;">
+                        Copy Avatar Wall HTML
+                    </button>
+                </div>
+            </section>
+
+            <section class="contributors-list-section" id="contributors-list-section" style="display: none;">
+                <div class="section-header">
+                    <h2 class="lang-zh">贡献者列表</h2>
+                    <h2 class="lang-en" style="display: none;">Contributors List</h2>
+                    <button id="copy-list-btn" class="copy-list-btn lang-zh">复制列表 HTML</button>
+                    <button id="copy-list-btn" class="copy-list-btn lang-en" style="display: none;">Copy List HTML</button>
+                </div>
+                <div class="contributors-list" id="contributors-list"></div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p class="footer-text lang-zh">
+                    Made with love for Open Source Community
+                </p>
+                <p class="footer-text lang-en" style="display: none;">
+                    Made with love for Open Source Community
+                </p>
+                <div class="support-section">
+                    <p class="lang-zh">觉得有用？欢迎支持开发者</p>
+                    <p class="lang-en" style="display: none;">Find it useful? Support the developer</p>
+                    <div class="support-buttons">
+                        <details class="support-details">
+                            <summary id="support-summary">赞赏支持</summary>
+                            <div class="support-qr">
+                                <p id="qr-title" class="lang-zh">微信赞赏码</p>
+                                <p id="qr-title-en" class="lang-en" style="display: none;">WeChat QR Code</p>
+                                <img src="zanshangma.jpg" alt="赞赏码" style="width: 300px; height: 300px; border-radius: 8px;">
+                            </div>
+                        </details>
+                    </div>
+                </div>
+                <p class="privacy-notice lang-zh">
+                    隐私声明：所有操作在浏览器本地完成，不收集任何数据
+                </p>
+                <p class="privacy-notice lang-en" style="display: none;">
+                    Privacy: All operations are completed locally in the browser, no data is collected
+                </p>
+                <a href="https://github.com/xiaoxingdelabi1" target="_blank" class="github-link">
+                    GitHub
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
